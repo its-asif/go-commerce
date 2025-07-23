@@ -1,0 +1,32 @@
+# Binaries & builds
+main
+main.exe
+*.exe
+*.out
+*.test
+
+# Dependency directories (vendor or tools)
+vendor/
+
+# IDE/editor configs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Env config
+.env
+
+# Air temporary files
+tmp/
+.air.toml
+
+# Logs
+*.log
+
+# Docker
+pgdata/
