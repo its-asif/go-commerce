@@ -17,20 +17,10 @@ RUN go mod download
 # copy the source code
 COPY . .
 
-# Copy Air config
-#COPY .air.toml .
-
-
-# Download and install dependencies
-#RUN go get -d -v ./...
-
-# Build the go app
-#RUN go build -o main .
 
 # export the port
 EXPOSE 8000
 
 # Run the executable
-#CMD ["./main"]
 CMD ["air"]
 
