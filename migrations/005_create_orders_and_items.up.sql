@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS orders (
     user_id INT REFERENCES users(id),
     total_price NUMERIC(12,2) NOT NULL,
     status TEXT DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    placed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS order_items (
