@@ -3,25 +3,42 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/gorilla/mux"
 	"github.com/its-asif/go-commerce/db"
 	"github.com/its-asif/go-commerce/middleware"
 	"github.com/its-asif/go-commerce/models"
-	"log"
-	"net/http"
-	"strconv"
+	"github.com/its-asif/go-commerce/utils"
 )
 
 func GetCarts(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(middleware.UserKey).(int)
 
 	var cartItems []models.CartItem
+
+	// Check cache first
+	cacheKey := fmt.Sprintf("cart_user_%d", userID)
+	err := utils.GetCache(cacheKey, &cartItems)
+	if err == nil {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(cartItems)
+		return
+	}
+
+	// Get from database if not in cache
 	query := `SELECT * FROM cart_items WHERE user_id = $1`
-	err := db.DB.Select(&cartItems, query, userID)
+	err = db.DB.Select(&cartItems, query, userID)
 	if err != nil {
 		http.Error(w, "Failed to fetch cart", http.StatusInternalServerError)
 		return
 	}
+
+	// Cache the cart items
+	_ = utils.SetCache(cacheKey, cartItems, time.Minute*5)
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(cartItems)
@@ -29,7 +46,6 @@ func GetCarts(w http.ResponseWriter, r *http.Request) {
 
 func AddToCart(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(middleware.UserKey).(int)
-	fmt.Println(userID)
 
 	var input models.CartItem
 	err := json.NewDecoder(r.Body).Decode(&input)
@@ -59,6 +75,10 @@ func AddToCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Invalidate cart cache
+	cacheKey := fmt.Sprintf("cart_user_%d", userID)
+	_ = utils.DeleteCache(cacheKey)
+
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode("Product added to cart")
 }
@@ -79,6 +99,10 @@ func RemoveFromCart(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to remove item", http.StatusInternalServerError)
 		return
 	}
+
+	// Invalidate cart cache
+	cacheKey := fmt.Sprintf("cart_user_%d", userID)
+	_ = utils.DeleteCache(cacheKey)
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode("Product removed from cart")

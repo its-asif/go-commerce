@@ -14,6 +14,7 @@ func main() {
 	fmt.Println("Welcome to GO-Commerce")
 	config.LoadEnv()
 	db.ConnectDB()
+	db.ConnectRedis()
 
 	router := mux.NewRouter()
 	routes.GetRoutes(router)

@@ -3,10 +3,13 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/its-asif/go-commerce/db"
 	"github.com/its-asif/go-commerce/middleware"
 	"github.com/its-asif/go-commerce/models"
-	"net/http"
+	"github.com/its-asif/go-commerce/utils"
 )
 
 func Checkout(w http.ResponseWriter, r *http.Request) {
@@ -61,6 +64,12 @@ func Checkout(w http.ResponseWriter, r *http.Request) {
 	// Clear cart
 	_, _ = db.DB.Exec(`DELETE FROM cart_items WHERE user_id = $1`, userID)
 
+	// Invalidate user orders cache and cart cache
+	ordersCacheKey := fmt.Sprintf("orders_user_%d", userID)
+	cartCacheKey := fmt.Sprintf("cart_user_%d", userID)
+	_ = utils.DeleteCache(ordersCacheKey)
+	_ = utils.DeleteCache(cartCacheKey)
+
 	w.WriteHeader(http.StatusCreated)
 	_ = json.NewEncoder(w).Encode(order)
 }
@@ -69,12 +78,26 @@ func GetOrders(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(middleware.UserKey).(int)
 
 	var orders []models.Order
-	err := db.DB.Select(&orders, `SELECT * FROM orders WHERE user_id = $1`, userID)
+
+	// Check cache first
+	cacheKey := fmt.Sprintf("orders_user_%d", userID)
+	err := utils.GetCache(cacheKey, &orders)
+	if err == nil {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(orders)
+		return
+	}
+
+	// Get from database if not in cache
+	err = db.DB.Select(&orders, `SELECT * FROM orders WHERE user_id = $1`, userID)
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Error fetching orders", http.StatusInternalServerError)
 		return
 	}
+
+	// Cache the orders
+	_ = utils.SetCache(cacheKey, orders, time.Minute*10)
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(orders)

@@ -2,12 +2,15 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/its-asif/go-commerce/db"
 	"github.com/its-asif/go-commerce/models"
 	"github.com/its-asif/go-commerce/utils"
 	"github.com/lib/pq"
-	"net/http"
-	"strings"
 )
 
 func Register(w http.ResponseWriter, r *http.Request) {
@@ -55,12 +58,21 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := &models.User{}
-	//search if email exist
-	err = db.DB.Get(user, "Select * FROM users where email=$1", strings.TrimSpace(input.Email))
+
+	// Check cache first
+	cacheKey := fmt.Sprintf("user_email_%s", strings.TrimSpace(input.Email))
+	err = utils.GetCache(cacheKey, user)
 	if err != nil {
-		http.Error(w, "Server error", http.StatusInternalServerError)
-		return
+		// Get from database if not in cache
+		err = db.DB.Get(user, "Select * FROM users where email=$1", strings.TrimSpace(input.Email))
+		if err != nil {
+			http.Error(w, "Server error", http.StatusInternalServerError)
+			return
+		}
+		// Cache the user data
+		_ = utils.SetCache(cacheKey, user, time.Minute*15)
 	}
+
 	//	match pass
 	err = utils.MatchPass(user.Password, input.Password)
 	if err != nil {
