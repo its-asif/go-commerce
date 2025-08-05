@@ -15,6 +15,15 @@ import (
 	"github.com/its-asif/go-commerce/utils"
 )
 
+// @Summary      Get Cart Items
+// @Description  Retrieve all items in the user's cart
+// @Tags         Cart
+// @Produce      json
+// @Param        Authorization header string true "Bearer + JWT_Token>"
+// @Success      200 {array} models.CartItemResponse
+// @Failure      401 {string} string "Unauthorized"
+// @Failure      500 {string} string "Server Error"
+// @Router       /api/cart [get]
 func GetCarts(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(middleware.UserKey).(int)
 
@@ -44,6 +53,18 @@ func GetCarts(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(cartItems)
 }
 
+// @Summary      Add to Cart
+// @Description  Add a product to the user's cart
+// @Tags         Cart
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer + JWT_Token"
+// @Param        input body models.CreateCartItemRequest true "Cart Item Input"
+// @Success      201 {object} models.CartItemResponse
+// @Failure      400 {string} string "Invalid Input"
+// @Failure      401 {string} string "Unauthorized"
+// @Failure      500 {string} string "Server Error"
+// @Router       /api/cart [post]
 func AddToCart(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(middleware.UserKey).(int)
 
@@ -83,6 +104,17 @@ func AddToCart(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode("Product added to cart")
 }
 
+// @Summary      Remove from cart
+// @Description  Remove a product to the user's cart
+// @Tags         Cart
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer + JWT_Token"
+// @Success      201 {object} models.CartItemResponse
+// @Failure      400 {string} string "Invalid Input"
+// @Failure      401 {string} string "Unauthorized"
+// @Failure      500 {string} string "Server Error"
+// @Router       /api/cart [post]
 func RemoveFromCart(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(middleware.UserKey).(int)
 	prodID := mux.Vars(r)["product_id"]

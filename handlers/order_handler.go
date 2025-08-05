@@ -12,6 +12,18 @@ import (
 	"github.com/its-asif/go-commerce/utils"
 )
 
+// @Summary      Place Order
+// @Description  Place a new order with the items in the user's cart
+// @Tags         Orders
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer + JWT_Token>"
+// @Param        input body models.CreateOrderRequest true "Order Input"
+// @Success      201 {object} models.OrderResponse
+// @Failure      400 {string} string "Invalid Input"
+// @Failure      401 {string} string "Unauthorized"
+// @Failure      500 {string} string "Server Error"
+// @Router       /api/orders/checkout [post]
 func Checkout(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(middleware.UserKey).(int)
 
@@ -74,6 +86,15 @@ func Checkout(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(order)
 }
 
+// @Summary      Get Orders
+// @Description  Retrieve all orders placed by the user
+// @Tags         Orders
+// @Produce      json
+// @Param        Authorization header string true "Bearer JWT_Token"
+// @Success      200 {array} models.OrderResponse
+// @Failure      401 {string} string "Unauthorized"
+// @Failure      500 {string} string "Server Error"
+// @Router       /api/orders [get]
 func GetOrders(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(middleware.UserKey).(int)
 

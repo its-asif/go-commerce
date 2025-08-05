@@ -2,10 +2,11 @@ package middleware
 
 import (
 	"context"
-	"github.com/its-asif/go-commerce/db"
-	"github.com/its-asif/go-commerce/utils"
 	"net/http"
 	"strings"
+
+	"github.com/its-asif/go-commerce/db"
+	"github.com/its-asif/go-commerce/utils"
 )
 
 const UserKey int = 0

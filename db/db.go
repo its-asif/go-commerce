@@ -3,12 +3,13 @@ package db
 import (
 	"context"
 	"fmt"
+	"log"
+	"strconv"
+
 	"github.com/its-asif/go-commerce/config"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/redis/go-redis/v9"
-	"log"
-	"strconv"
 )
 
 var DB *sqlx.DB

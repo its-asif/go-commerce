@@ -3,8 +3,9 @@ package utils
 import (
 	"context"
 	"encoding/json"
-	"github.com/its-asif/go-commerce/db"
 	"time"
+
+	"github.com/its-asif/go-commerce/db"
 )
 
 func GetCache(key string, destination interface{}) error {

@@ -10,6 +10,16 @@ import (
 	"github.com/its-asif/go-commerce/utils"
 )
 
+// @Summary      Create Category
+// @Description  Create a new category
+// @Tags         Categories
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer + admin_JWT_Token>"
+// @Param        input body models.CreateCategoryRequest true "Category Input"
+// @Success      201 {object} models.CreateCategoryRequest
+// @Failure      400 {string} string "Bad Request"
+// @Router       /api/categories [post]
 func CreateCategory(w http.ResponseWriter, r *http.Request) {
 	var input models.Category
 	err := json.NewDecoder(r.Body).Decode(&input)
@@ -23,7 +33,7 @@ func CreateCategory(w http.ResponseWriter, r *http.Request) {
 				RETURNING id`
 	err = db.DB.QueryRowx(query, input.Name, input.Slug).Scan(&input.ID)
 	if err != nil {
-		http.Error(w, "server error", http.StatusInternalServerError)
+		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
 
@@ -34,6 +44,15 @@ func CreateCategory(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(input)
 }
 
+// @Summary      Get All Categories
+// @Description  Retrieve all categories
+// @Tags         Categories
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer + admin_JWT_Token>"
+// @Success      200 {array} models.Category
+// @Failure      400 {string} string "Bad Request"
+// @Router       /api/categories [get]
 func GetAllCategories(w http.ResponseWriter, r *http.Request) {
 	var categories []models.Category
 
@@ -50,7 +69,7 @@ func GetAllCategories(w http.ResponseWriter, r *http.Request) {
 	query := `SELECT * FROM categories`
 	err = db.DB.Select(&categories, query)
 	if err != nil {
-		http.Error(w, "server error", http.StatusInternalServerError)
+		http.Error(w, "server error", http.StatusBadRequest)
 		return
 	}
 

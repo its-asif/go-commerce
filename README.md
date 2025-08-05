@@ -13,6 +13,7 @@ This is a RESTful API for an E-commerce platform built with Go. It supports user
 - PostgresSQL database integration
 - Redis caching for improved performance
 - Caching for products, categories, user data, cart items, and orders
+- Swagger API Documentation
 
 ## Project Structure
 
@@ -35,7 +36,7 @@ This is a RESTful API for an E-commerce platform built with Go. It supports user
 ### 1. Clone the Repository
 
 ```sh
-git clone https://github.com/your-username/go-commerce.git
+git clone https://github.com/its-asif/go-commerce.git
 cd go-commerce
 ```
 
@@ -68,7 +69,17 @@ Services started:
 - **PostgreSQL**: Available at `localhost:5432` (internal to Docker network as `go_db`)
 - **Redis**: Available at `localhost:6379` (internal to Docker network as `redis`)
 
-### 4. Redis Caching
+### 4. Swagger API Documentation
+
+The API includes Swagger documentation for all endpoints. After starting the server, you can access the Swagger UI at:
+
+```
+http://localhost:8000/swagger/index.html
+```
+
+Swagger provides an interactive interface to test and explore the API.
+
+### 5. Redis Caching
 
 The application implements Redis caching for:
 - **Products**: Individual products cached for 5 minutes, all products for 10 minutes
@@ -79,7 +90,7 @@ The application implements Redis caching for:
 
 Cache keys are automatically invalidated when data is modified (create, update, delete operations).
 
-### 5. API Endpoints
+### 6. API Endpoints
 
 - `POST /auth/register` - Register a new user
 - `POST /auth/login` - Login and receive JWT token
@@ -96,7 +107,7 @@ Cache keys are automatically invalidated when data is modified (create, update, 
 - `GET /api/orders` - Get user orders (cached)
 - `POST /api/orders/checkout` - Checkout cart (authenticated, invalidates cache)
 
-### 6. Stopping the Services
+### 7. Stopping the Services
 
 Press `Ctrl+C` in the terminal or run:
 

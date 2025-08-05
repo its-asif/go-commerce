@@ -13,6 +13,15 @@ import (
 	"github.com/lib/pq"
 )
 
+// @Summary		Register
+// @Description	Register a user
+// @Tags			Auth
+// @Accept			json
+// @Produce		json
+// @Param			input	body		models.RegisterRequest	true	"Registration credential"
+// @Success		201		{object}	models.User
+// @Failure		400		{string}	string	"Invalid Input"
+// @Router			/auth/register [post]
 func Register(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Name, Email, Password string
@@ -47,16 +56,30 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
+// @Summary		Login
+// @Description	Login to your user account
+// @Tags			Auth
+// @Accept			json
+// @Produce		json
+// @Param			input	body		models.LoginRequest	true	"Login Credentials"
+// @Success		200		{object}	models.User
+// @Failure		400		{string}	string	"Invalid Input"
+// @Failure		401		{string}	string	"Wrong Email or password"
+// @Failure		500		{string}	string	"Server Error"
+// @Router			/auth/login [post]
 func Login(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Email, Password string
 	}
 	err := json.NewDecoder(r.Body).Decode(&input)
+	fmt.Println("78", input)
 	if err != nil {
+		fmt.Println("80", r.Body)
 		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
 	}
 
+	fmt.Println("84", input)
 	user := &models.User{}
 
 	// Check cache first

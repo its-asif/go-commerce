@@ -21,8 +21,8 @@ func GetRoutes(r *mux.Router) {
 	adminRoute.Use(middleware.AdminMiddleware)
 
 	//	Products
-	api.HandleFunc("/products", handlers.GetAllProducts).Methods("GET")
 	adminRoute.HandleFunc("/products", handlers.CreateProducts).Methods("POST")
+	api.HandleFunc("/products", handlers.GetAllProducts).Methods("GET")
 	api.HandleFunc("/products/{id}", handlers.GetOneProduct).Methods("GET")
 	api.HandleFunc("/products/{id}", handlers.UpdateOneProduct).Methods("PUT")
 	adminRoute.HandleFunc("/products/{id}", handlers.DeleteOneProduct).Methods("DELETE")
@@ -38,4 +38,5 @@ func GetRoutes(r *mux.Router) {
 
 	// category
 	adminRoute.HandleFunc("/categories", handlers.CreateCategory).Methods("POST")
+	adminRoute.HandleFunc("/categories", handlers.GetAllCategories).Methods("GET")
 }

@@ -1,0 +1,332 @@
+basePath: /
+definitions:
+  models.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  models.Product:
+    properties:
+      category_id:
+        description: ID of the category the product belongs to
+        example: 2
+        type: integer
+      created_at:
+        description: Timestamp when the product was created
+        example: "2023-08-01T12:00:00Z"
+        type: string
+      description:
+        description: Product Description
+        example: A high-performance laptop
+        type: string
+      id:
+        description: Product ID
+        example: 1
+        type: integer
+      image_url:
+        description: URL of the product image
+        example: https://example.com/image.jpg
+        type: string
+      name:
+        description: Product Name
+        example: Lenovo 96
+        type: string
+      price:
+        description: Price of the Product
+        example: 999.99
+        type: number
+      stock:
+        description: Number of Stocks
+        example: 50
+        type: integer
+    type: object
+  models.RegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  models.UpdateProductRequest:
+    description: A product contains details like name, description, price, stock,
+      category, and image URL.
+    properties:
+      category_id:
+        example: 3
+        type: integer
+      description:
+        example: A brand-new smartphone with advanced features
+        type: string
+      image_url:
+        example: https://example.com/smartphone.jpg
+        type: string
+      name:
+        example: Nokia
+        type: string
+      price:
+        example: 799.99
+        type: number
+      stock:
+        example: 100
+        type: integer
+    type: object
+  models.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      password:
+        type: string
+      role:
+        description: user or admin
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: This is a RESTful API for an E-commerce platform built with Go.
+  title: GO Commerce API
+  version: "1.0"
+paths:
+  /:
+    get:
+      consumes:
+      - application/json
+      description: '"Check if server is running fine"'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: All good
+          schema:
+            type: string
+      summary: Ping
+      tags:
+      - Ping
+  /api/products:
+    get:
+      consumes:
+      - application/json
+      description: Get all the products from db
+      parameters:
+      - description: Bearer + JWT_Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Product'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Get All Products
+      tags:
+      - Products
+    post:
+      consumes:
+      - application/json
+      description: Create a new product
+      parameters:
+      - description: Bearer + JWT_Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Product Input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Product'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Product'
+        "400":
+          description: Invalid Input
+          schema:
+            type: string
+        "402":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Server Error
+          schema:
+            type: string
+      summary: Create Product
+      tags:
+      - Products
+  /api/products/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a product by ID
+      parameters:
+      - description: Bearer + JWT_Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Product'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      summary: Delete Product
+      tags:
+      - Products
+    get:
+      consumes:
+      - application/json
+      description: Get a single product by ID
+      parameters:
+      - description: Bearer + JWT_Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Product'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Get One Products
+      tags:
+      - Products
+    put:
+      consumes:
+      - application/json
+      description: Update a product by ID
+      parameters:
+      - description: Bearer + JWT_Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Product Input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Product'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      summary: Update Product
+      tags:
+      - Products
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login to your user account
+      parameters:
+      - description: Login Credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Invalid Input
+          schema:
+            type: string
+        "401":
+          description: Wrong Email or password
+          schema:
+            type: string
+        "500":
+          description: Server Error
+          schema:
+            type: string
+      summary: Login
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a user
+      parameters:
+      - description: Registration credential
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Invalid Input
+          schema:
+            type: string
+      summary: Register
+      tags:
+      - Auth
+swagger: "2.0"
