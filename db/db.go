@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 
 	"github.com/its-asif/go-commerce/config"
 	"github.com/jmoiron/sqlx"
@@ -35,11 +36,28 @@ func ConnectRedis() {
 		dbNum = 0
 	}
 
-	Rdb = redis.NewClient(&redis.Options{
-		Addr:     config.GetEnv("REDIS_URL")[8:],
-		Password: config.GetEnv("REDIS_PASSWORD"),
-		DB:       dbNum,
-	})
+	// Prefer REDIS_URL if provided, e.g., redis://:password@host:6379/0
+	redisURL := strings.TrimSpace(config.GetEnv("REDIS_URL"))
+	if redisURL != "" {
+		opt, perr := redis.ParseURL(redisURL)
+		if perr == nil {
+			// Override DB if REDIS_DB is set explicitly
+			opt.DB = dbNum
+			if pw := strings.TrimSpace(config.GetEnv("REDIS_PASSWORD")); pw != "" {
+				opt.Password = pw
+			}
+			Rdb = redis.NewClient(opt)
+		}
+	}
+
+	// Fallback to options if URL parse failed or URL not provided
+	if Rdb == nil {
+		Rdb = redis.NewClient(&redis.Options{
+			Addr:     strings.TrimPrefix(redisURL, "redis://"),
+			Password: config.GetEnv("REDIS_PASSWORD"),
+			DB:       dbNum,
+		})
+	}
 
 	//	test connection
 	ctx := context.Background()

@@ -33,10 +33,9 @@ func CreateProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := `INSERT INTO products (name, description, price, stock, category_id, image_url)
-				VALUES($1,$2,$3,$4,$5,$6)
-				RETURNING id, created_at`
-	err = db.DB.QueryRowx(query, input.Name, input.Description, input.Price, input.Stock, input.CategoryID, input.ImageURL).Scan(&input.ID, &input.CreatedAt)
+	// db query
+	err = db.CreateProduct(input)
+
 	if err != nil {
 		http.Error(w, "server error", http.StatusBadRequest)
 		return
@@ -46,7 +45,7 @@ func CreateProducts(w http.ResponseWriter, r *http.Request) {
 	_ = utils.DeleteCache("all_products")
 
 	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(input)
+	_ = json.NewEncoder(w).Encode("Product created successfully")
 }
 
 // @Summary		Get All Products
@@ -71,8 +70,7 @@ func GetAllProducts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// get from DB
-	query := `SELECT * FROM products`
-	err = db.DB.Select(&prod, query)
+	prod, err = db.GetAllProduct()
 
 	if err != nil {
 		http.Error(w, "server error", http.StatusBadRequest)
@@ -121,9 +119,7 @@ func GetOneProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// get from db
-	query := `SELECT id, name, description, price, stock, category_id, image_url FROM products WHERE id=$1`
-	row := db.DB.QueryRow(query, id)
-	err = row.Scan(&prod.ID, &prod.Name, &prod.Description, &prod.Price, &prod.Stock, &prod.CategoryID, &prod.ImageURL)
+	prod, err = db.GetSingleProduct(id)
 
 	if err != nil {
 		http.Error(w, "server error", http.StatusBadRequest)
@@ -162,58 +158,8 @@ func UpdateOneProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid input", http.StatusBadRequest)
 	}
 
-	updates := []string{}
-	args := []interface{}{}
-	argPosition := 1
-
-	if input.Name != nil {
-		updates = append(updates, fmt.Sprintf("name=$%d", argPosition))
-		args = append(args, *input.Name)
-		argPosition++
-	}
-	if input.Description != nil {
-		updates = append(updates, fmt.Sprintf("description=$%d", argPosition))
-		args = append(args, *input.Description)
-		argPosition++
-	}
-	if input.Price != nil {
-		updates = append(updates, fmt.Sprintf("price=$%d", argPosition))
-		args = append(args, *input.Price)
-		argPosition++
-	}
-	if input.Stock != nil {
-		updates = append(updates, fmt.Sprintf("stock=$%d", argPosition))
-		args = append(args, *input.Stock)
-		argPosition++
-	}
-	if input.CategoryID != nil {
-		updates = append(updates, fmt.Sprintf("category_id=$%d", argPosition))
-		args = append(args, *input.CategoryID)
-		argPosition++
-	}
-	if input.ImageURL != nil {
-		updates = append(updates, fmt.Sprintf("image_url=$%d", argPosition))
-		args = append(args, *input.ImageURL)
-		argPosition++
-	}
-
-	if len(updates) == 0 {
-		http.Error(w, "No fields to update", http.StatusBadRequest)
-		return
-	}
-
-	//var result models.Product
-	//query := `UPDATE products
-	//			SET name=$1, description=$2, price=$3, stock=$4, category_id=$5, image_url=$6
-	//			WHERE id=$7`
-	//
-
-	query := fmt.Sprintf(`UPDATE products SET %s WHERE id=$%d`,
-		joinStrings(updates, ", "), argPosition)
-	args = append(args, id)
-
-	//_, err = db.DB.Exec(query, prod.Name, prod.Description, prod.Price, prod.Stock, prod.CategoryID, prod.ImageURL, id)
-	_, err = db.DB.Exec(query, args...)
+	// update from db
+	err = db.UpdateProduct(id, input, w)
 
 	if err != nil {
 		http.Error(w, "Error updating", http.StatusBadRequest)
@@ -229,17 +175,6 @@ func UpdateOneProduct(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	//_ = json.NewEncoder(w).Encode(input)
 	w.Write([]byte("Product updated successfully"))
-}
-
-func joinStrings(slice []string, sep string) string {
-	result := ""
-	for i, s := range slice {
-		if i > 0 {
-			result += sep
-		}
-		result += s
-	}
-	return result
 }
 
 // @Summary		Delete Product
@@ -260,22 +195,9 @@ func DeleteOneProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var prod models.Product
-	//productRow := db.DB.QueryRow("SELECT * WHERE id $1", id)
-	query := `SELECT id, name, description, price, stock, category_id, image_url FROM products WHERE id=$1`
-	productRow := db.DB.QueryRow(`SELECT id, name, description, price, stock, category_id, image_url FROM products WHERE id=$1`, id)
-	err = productRow.Scan(&prod.ID, &prod.Name, &prod.Description, &prod.Price, &prod.Stock, &prod.CategoryID, &prod.ImageURL)
+	// delete from db
+	err = db.DeleteProduct(id, w)
 
-	// check if it exists
-	if err != nil {
-		_ = json.NewEncoder(w).Encode("the product doesn't exist")
-		return
-	}
-
-	query = `DELETE FROM products 
-				WHERE id=$1`
-
-	_, err = db.DB.Exec(query, id)
 	if err != nil {
 		http.Error(w, "Error updating", http.StatusBadRequest)
 		return

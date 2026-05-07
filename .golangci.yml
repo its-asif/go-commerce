@@ -1,0 +1,29 @@
+run:
+  timeout: 5m
+  tests: true
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - revive
+    - gofmt
+    - gci
+issues:
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0
+linters-settings:
+  revive:
+    rules:
+      - name: indent-error-flow
+      - name: exported
+        disabled: true
+  gci:
+    sections:
+      - standard
+      - default
+      - prefix(github.com/its-asif/go-commerce)

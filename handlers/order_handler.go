@@ -18,7 +18,7 @@ import (
 // @Accept       json
 // @Produce      json
 // @Param        Authorization header string true "Bearer + JWT_Token>"
-// @Param        input body models.CreateOrderRequest true "Order Input"
+// @Param        input body models.Order true "Order Input"
 // @Success      201 {object} models.OrderResponse
 // @Failure      400 {string} string "Invalid Input"
 // @Failure      401 {string} string "Unauthorized"

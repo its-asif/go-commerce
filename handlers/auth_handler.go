@@ -72,14 +72,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		Email, Password string
 	}
 	err := json.NewDecoder(r.Body).Decode(&input)
-	fmt.Println("78", input)
 	if err != nil {
-		fmt.Println("80", r.Body)
 		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
 	}
 
-	fmt.Println("84", input)
 	user := &models.User{}
 
 	// Check cache first
@@ -103,7 +100,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := utils.GenerateToken(user.ID)
+	// include role in token to reduce DB hits for admin middleware
+	token, err := utils.GenerateTokenWithRole(user.ID, user.Role)
 	if err != nil {
 		http.Error(w, "Server error", http.StatusInternalServerError)
 		return

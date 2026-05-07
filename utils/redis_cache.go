@@ -3,6 +3,7 @@ package utils
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/its-asif/go-commerce/db"
@@ -19,6 +20,7 @@ func GetCache(key string, destination interface{}) error {
 }
 
 func SetCache(key string, value interface{}, expiration time.Duration) error {
+	fmt.Println("Setting cache for key:", key)
 	ctx := context.Background()
 	jsonValue, err := json.Marshal(value)
 	if err != nil {

@@ -8,6 +8,7 @@ import (
 
 func GetRoutes(r *mux.Router) {
 	r.HandleFunc("/", handlers.HomeHandler).Methods("GET")
+	r.HandleFunc("/healthz", handlers.HealthHandler).Methods("GET")
 
 	//	user auth
 	r.HandleFunc("/auth/register", handlers.Register).Methods("POST")
@@ -19,6 +20,11 @@ func GetRoutes(r *mux.Router) {
 
 	adminRoute := api.NewRoute().Subrouter()
 	adminRoute.Use(middleware.AdminMiddleware)
+
+	// users
+	adminRoute.HandleFunc("/users", handlers.GetAllUsers).Methods("GET")
+	adminRoute.HandleFunc("/users/id/{id}", handlers.GetSingleUserByID).Methods("GET")
+	adminRoute.HandleFunc("/users/email/{email}", handlers.GetSingleUserByEmail).Methods("GET")
 
 	//	Products
 	adminRoute.HandleFunc("/products", handlers.CreateProducts).Methods("POST")

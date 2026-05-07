@@ -32,6 +32,287 @@
                 }
             }
         },
+        "/api/cart": {
+            "get": {
+                "description": "Retrieve all items in the user's cart",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Get Cart Items",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer + JWT_Token\u003e",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.CartItemResponse"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Remove a product to the user's cart",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Remove from cart",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer + JWT_Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.CartItemResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Input",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/categories": {
+            "get": {
+                "description": "Retrieve all categories",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Get All Categories",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer + admin_JWT_Token\u003e",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Category"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new category",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Create Category",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer + admin_JWT_Token\u003e",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Category Input",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateCategoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateCategoryRequest"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/orders": {
+            "get": {
+                "description": "Retrieve all orders placed by the user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Get Orders",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer JWT_Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.OrderResponse"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/orders/checkout": {
+            "post": {
+                "description": "Place a new order with the items in the user's cart",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Place Order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer + JWT_Token\u003e",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Order Input",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Order"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.OrderResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Input",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/products": {
             "get": {
                 "description": "Get all the products from db",
@@ -95,7 +376,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Product"
+                            "$ref": "#/definitions/models.CreateProductRequest"
                         }
                     }
                 ],
@@ -267,6 +548,137 @@
                 }
             }
         },
+        "/api/users": {
+            "get": {
+                "description": "Get all the users from db",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get All Users",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer + JWT_Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.User"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/email/{email}": {
+            "get": {
+                "description": "Get a single user from db",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get Single Users By Email",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer + JWT_Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User Email",
+                        "name": "email",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/id/{id}": {
+            "get": {
+                "description": "Get a single user from db",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get Single Users by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer + JWT_Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/login": {
             "post": {
                 "description": "Login to your user account",
@@ -361,6 +773,113 @@
         }
     },
     "definitions": {
+        "models.CartItemResponse": {
+            "description": "Details of a cart item in the response.",
+            "type": "object",
+            "properties": {
+                "added_at": {
+                    "description": "Timestamp when the product was added to the cart",
+                    "type": "string",
+                    "example": "2023-08-01T12:00:00Z"
+                },
+                "price": {
+                    "description": "Price of the product at the time it was added",
+                    "type": "number",
+                    "example": 199.99
+                },
+                "product_id": {
+                    "description": "Product ID",
+                    "type": "integer",
+                    "example": 101
+                },
+                "quantity": {
+                    "description": "Quantity of the product",
+                    "type": "integer",
+                    "example": 2
+                },
+                "user_id": {
+                    "description": "User ID",
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "models.Category": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Electronics"
+                },
+                "slug": {
+                    "type": "string",
+                    "example": "electronics"
+                }
+            }
+        },
+        "models.CreateCartItemRequest": {
+            "description": "Input for adding a product to the cart.",
+            "type": "object",
+            "properties": {
+                "product_id": {
+                    "description": "Product ID",
+                    "type": "integer",
+                    "example": 101
+                },
+                "quantity": {
+                    "description": "Quantity of the product",
+                    "type": "integer",
+                    "example": 2
+                }
+            }
+        },
+        "models.CreateCategoryRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "Electronics"
+                },
+                "slug": {
+                    "type": "string",
+                    "example": "electronics"
+                }
+            }
+        },
+        "models.CreateProductRequest": {
+            "description": "A product contains details like name, description, price, stock, category, and image URL.",
+            "type": "object",
+            "properties": {
+                "category_id": {
+                    "type": "integer",
+                    "example": 3
+                },
+                "description": {
+                    "type": "string",
+                    "example": "A brand-new smartphone with advanced features"
+                },
+                "image_url": {
+                    "type": "string",
+                    "example": "https://example.com/smartphone.jpg"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Nokia"
+                },
+                "price": {
+                    "type": "number",
+                    "example": 799.99
+                },
+                "stock": {
+                    "type": "integer",
+                    "example": 100
+                }
+            }
+        },
         "models.LoginRequest": {
             "type": "object",
             "properties": {
@@ -369,6 +888,106 @@
                 },
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "models.Order": {
+            "description": "An order contains details like user ID, total price, status, and the time it was placed.",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "Order ID",
+                    "type": "integer",
+                    "example": 1
+                },
+                "placed_at": {
+                    "description": "Timestamp when the order was placed",
+                    "type": "string",
+                    "example": "2023-08-01T12:00:00Z"
+                },
+                "status": {
+                    "description": "Status of the order",
+                    "type": "string",
+                    "example": "Pending"
+                },
+                "total_price": {
+                    "description": "Total Price of the order",
+                    "type": "number",
+                    "example": 299.99
+                },
+                "user_id": {
+                    "description": "User ID",
+                    "type": "integer",
+                    "example": 101
+                }
+            }
+        },
+        "models.OrderResponse": {
+            "description": "Details of an order in the response.",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "Order ID",
+                    "type": "integer",
+                    "example": 1
+                },
+                "items": {
+                    "description": "List of ordered items",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.OrderedItem"
+                    }
+                },
+                "placed_at": {
+                    "description": "Timestamp when the order was placed",
+                    "type": "string",
+                    "example": "2023-08-01T12:00:00Z"
+                },
+                "status": {
+                    "description": "Status of the order",
+                    "type": "string",
+                    "example": "Pending"
+                },
+                "total_price": {
+                    "description": "Total Price of the order",
+                    "type": "number",
+                    "example": 299.99
+                },
+                "user_id": {
+                    "description": "User ID",
+                    "type": "integer",
+                    "example": 101
+                }
+            }
+        },
+        "models.OrderedItem": {
+            "description": "An ordered item contains details about the product, quantity, price, and the order it belongs to.",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "Ordered Item ID",
+                    "type": "integer",
+                    "example": 1
+                },
+                "order_id": {
+                    "description": "Order ID",
+                    "type": "integer",
+                    "example": 1
+                },
+                "price": {
+                    "description": "Price of the product at the time of the order",
+                    "type": "number",
+                    "example": 149.99
+                },
+                "product_id": {
+                    "description": "Product ID",
+                    "type": "integer",
+                    "example": 101
+                },
+                "quantity": {
+                    "description": "Quantity of the product",
+                    "type": "integer",
+                    "example": 2
                 }
             }
         },
@@ -464,6 +1083,13 @@
         "models.User": {
             "type": "object",
             "properties": {
+                "address": {
+                    "description": "Optional / new fields",
+                    "type": "string"
+                },
+                "avatar": {
+                    "type": "string"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -473,14 +1099,21 @@
                 "id": {
                     "type": "integer"
                 },
+                "last_login": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
-                "password": {
+                "phone": {
                     "type": "string"
                 },
                 "role": {
                     "description": "user or admin",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "active, inactive, suspended",
                     "type": "string"
                 }
             }
