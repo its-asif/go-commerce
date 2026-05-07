@@ -143,3 +143,37 @@ Make sure Redis is running on your local machine:
 ```sh
 redis-server
 ```
+
+## Running Tests (unit)
+
+This repository includes a set of unit tests implemented with the Go standard library. To run them and generate a coverage report:
+
+```sh
+go test -v ./...
+go test -coverprofile=coverage.out ./...
+go tool cover -func=coverage.out
+go tool cover -html=coverage.out  # optional: opens HTML report
+
+Get total coverage percentage (CLI)
+```bash
+# Run tests and print the overall percentage (human-readable)
+go test -coverprofile=coverage.out ./... >/dev/null && go tool cover -func=coverage.out | awk '/total:/{print $3}'
+
+# Focused coverage for specific packages (example)
+go test -coverpkg=./handlers,./middleware,./utils,./config -coverprofile=coverage.out ./... >/dev/null && \
+	go tool cover -func=coverage.out | awk '/total:/{print $3}'
+
+# Get numeric value (no percent sign) into a shell variable
+COV=$(go test -coverprofile=coverage.out ./... >/dev/null && go tool cover -func=coverage.out | awk '/total:/{print $3}' | tr -d '%')
+echo "Coverage: $COV%"
+```
+```
+
+Summary of current test run (automatically generated):
+
+- Wrote 24 unit tests across packages: `utils`, `middleware`, `handlers`, and `config`.
+- Current overall coverage: 34.0% (see `coverage.out` for details).
+
+Notes & next steps:
+- Many DB-related functions and the generated `docs` package are not covered by these unit tests. Reaching 70%+ overall coverage will require either introducing test helpers/mocks for the database and Redis, or adding more integration tests that run against a test Postgres/Redis instance.
+- If you want me to continue toward 70% coverage, I recommend allowing the addition of focused test libraries (`github.com/DATA-DOG/go-sqlmock` and `github.com/alicebob/miniredis`) to make DB and Redis testing reliable and fast.
