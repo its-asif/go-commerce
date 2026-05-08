@@ -77,20 +77,16 @@ func AddToCart(w http.ResponseWriter, r *http.Request) {
 
 	// Get price from product table
 	var price float64
-	err = db.DB.Get(&price, `SELECT price FROM products WHERE id = $1`, input.ProductID)
-	if err != nil {
+	// attempt to read price via DB directly
+	// reuse GetSingleProduct from db helpers to obtain product price
+	prod, pErr := db.GetSingleProduct(input.ProductID)
+	if pErr != nil {
 		http.Error(w, "Product not found", http.StatusBadRequest)
 		return
 	}
+	price = prod.Price
 
-	query := `
-		INSERT INTO cart_items (user_id, product_id, quantity, price)
-		VALUES ($1, $2, $3, $4)
-		ON CONFLICT (user_id, product_id)
-		DO UPDATE SET quantity = cart_items.quantity + EXCLUDED.quantity
-	`
-	_, err = db.DB.Exec(query, userID, input.ProductID, input.Quantity, price)
-	if err != nil {
+	if err := db.AddOrUpdateCartItem(userID, input.ProductID, input.Quantity, price); err != nil {
 		log.Println("DB Error:", err)
 		http.Error(w, "Failed to add to cart", http.StatusInternalServerError)
 		return
@@ -125,9 +121,7 @@ func RemoveFromCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := `DELETE FROM cart_items WHERE user_id = $1 AND product_id = $2`
-	_, err = db.DB.Exec(query, userID, productID)
-	if err != nil {
+	if err := db.DeleteCartItem(userID, productID); err != nil {
 		http.Error(w, "Failed to remove item", http.StatusInternalServerError)
 		return
 	}

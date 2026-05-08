@@ -28,11 +28,9 @@ func CreateCategory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := `INSERT INTO categories (name, slug)
-				VALUES($1,$2)
-				RETURNING id`
-	err = db.DB.QueryRowx(query, input.Name, input.Slug).Scan(&input.ID)
-	if err != nil {
+	var derr error
+	input, derr = db.CreateCategory(input)
+	if derr != nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
@@ -66,9 +64,9 @@ func GetAllCategories(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get from database if not in cache
-	query := `SELECT * FROM categories`
-	err = db.DB.Select(&categories, query)
-	if err != nil {
+	var derr error
+	categories, derr = db.GetAllCategories()
+	if derr != nil {
 		http.Error(w, "server error", http.StatusBadRequest)
 		return
 	}

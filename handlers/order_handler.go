@@ -29,7 +29,8 @@ func Checkout(w http.ResponseWriter, r *http.Request) {
 
 	var cartItems []models.CartItem
 	// get cart-items
-	err := db.DB.Select(&cartItems, `SELECT * FROM cart_items WHERE user_id = $1`, userID)
+	var err error
+	cartItems, err = db.GetCartItems(userID)
 	if err != nil || len(cartItems) == 0 {
 		http.Error(w, "Cart is empty or unavailable", http.StatusBadRequest)
 		return
@@ -48,13 +49,7 @@ func Checkout(w http.ResponseWriter, r *http.Request) {
 		Status:     "pending",
 	}
 	// Insert into orders
-	err = db.DB.QueryRowx(
-		`INSERT INTO orders (user_id, total_price, status)
-		 VALUES ($1, $2, $3)
-		 RETURNING id, placed_at`,
-		order.UserID, order.TotalPrice, order.Status,
-	).Scan(&order.ID, &order.PlacedAt)
-	if err != nil {
+	if err := db.InsertOrder(&order); err != nil {
 		fmt.Println(err)
 		http.Error(w, "Failed to place order", http.StatusInternalServerError)
 		return
@@ -62,11 +57,7 @@ func Checkout(w http.ResponseWriter, r *http.Request) {
 
 	// Insert ordered items
 	for _, item := range cartItems {
-		_, err := db.DB.Exec(`
-			INSERT INTO order_items (order_id, product_id, quantity, price)
-			VALUES ($1, $2, $3, $4)
-		`, order.ID, item.ProductID, item.Quantity, item.Price)
-		if err != nil {
+		if err := db.InsertOrderItem(order.ID, item.ProductID, item.Quantity, item.Price); err != nil {
 			fmt.Println(err)
 			http.Error(w, "Failed to save order items", http.StatusInternalServerError)
 			return
@@ -74,7 +65,7 @@ func Checkout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Clear cart
-	_, _ = db.DB.Exec(`DELETE FROM cart_items WHERE user_id = $1`, userID)
+	_ = db.DeleteCartByUser(userID)
 
 	// Invalidate user orders cache and cart cache
 	ordersCacheKey := fmt.Sprintf("orders_user_%d", userID)

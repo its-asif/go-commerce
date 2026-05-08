@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -110,7 +109,7 @@ func GetOneProduct(w http.ResponseWriter, r *http.Request) {
 	var prod models.Product
 
 	// check if cache
-	cacheId := fmt.Sprintf("product_" + prodID)
+	cacheId := "product_" + prodID
 	err = utils.GetCache(cacheId, &prod)
 	if err == nil { // if found in cache
 		w.WriteHeader(http.StatusOK)
@@ -167,7 +166,7 @@ func UpdateOneProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// clear from cache
-	cacheId := fmt.Sprintf("product_" + prodID)
+	cacheId := "product_" + prodID
 	_ = utils.DeleteCache(cacheId)
 	// invalidate all_products cache
 	_ = utils.DeleteCache("all_products")
@@ -204,7 +203,7 @@ func DeleteOneProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// clear from cache
-	cacheId := fmt.Sprintf("product_" + prodID)
+	cacheId := "product_" + prodID
 	_ = utils.DeleteCache(cacheId)
 
 	// invalidate all_products cache

@@ -37,12 +37,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := `INSERT INTO users(name, email, password)
-				Values ($1, $2, $3)
-				RETURNING id, created_at`
-
-	user := models.User{}
-	err = db.DB.QueryRowx(query, input.Name, input.Email, hashPass).Scan(&user.ID, &user.CreatedAt)
+	user, err := db.CreateUser(input.Name, input.Email, hashPass)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
 			http.Error(w, "Email already taken", http.StatusBadRequest)
@@ -84,11 +79,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	err = utils.GetCache(cacheKey, user)
 	if err != nil {
 		// Get from database if not in cache
-		err = db.DB.Get(user, "Select * FROM users where email=$1", strings.TrimSpace(input.Email))
-		if err != nil {
+		fetched, ferr := db.GetUserByEmail(strings.TrimSpace(input.Email))
+		if ferr != nil {
 			http.Error(w, "Server error", http.StatusInternalServerError)
 			return
 		}
+		*user = fetched
 		// Cache the user data
 		_ = utils.SetCache(cacheKey, user, time.Minute*15)
 	}

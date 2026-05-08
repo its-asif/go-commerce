@@ -80,8 +80,7 @@ func AdminMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		var role string
-		err := db.DB.Get(&role, "SELECT role FROM users WHERE id=$1", userID)
+		role, err := db.GetUserRole(userID)
 		if err != nil || role != "admin" {
 			writeJSONError(w, http.StatusForbidden, "forbidden")
 			return

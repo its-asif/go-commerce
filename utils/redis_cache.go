@@ -9,17 +9,16 @@ import (
 	"github.com/its-asif/go-commerce/db"
 )
 
-func GetCache(key string, destination interface{}) error {
+var GetCache = func(key string, destination interface{}) error {
 	ctx := context.Background()
 	val, err := db.Rdb.Get(ctx, key).Result()
 	if err != nil {
 		return err
 	}
-
 	return json.Unmarshal([]byte(val), destination)
 }
 
-func SetCache(key string, value interface{}, expiration time.Duration) error {
+var SetCache = func(key string, value interface{}, expiration time.Duration) error {
 	fmt.Println("Setting cache for key:", key)
 	ctx := context.Background()
 	jsonValue, err := json.Marshal(value)
@@ -30,18 +29,18 @@ func SetCache(key string, value interface{}, expiration time.Duration) error {
 	return err
 }
 
-func DeleteCache(key string) error {
+var DeleteCache = func(key string) error {
 	ctx := context.Background()
 	err := db.Rdb.Del(ctx, key).Err()
 	return err
 }
 
-func GetCacheString(key string, destination interface{}) (string, error) {
+var GetCacheString = func(key string, destination interface{}) (string, error) {
 	ctx := context.Background()
 	return db.Rdb.Get(ctx, key).Result()
 }
 
-func SetCacheString(key string, value interface{}, expiration time.Duration) error {
+var SetCacheString = func(key string, value interface{}, expiration time.Duration) error {
 	ctx := context.Background()
 	return db.Rdb.Set(ctx, key, value, expiration).Err()
 }

@@ -3,28 +3,27 @@ package db
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/its-asif/go-commerce/models"
 	"net/http"
+
+	"github.com/its-asif/go-commerce/models"
 )
 
-func GetAllProduct() ([]models.Product, error) {
+var GetAllProduct = func() ([]models.Product, error) {
 	var prod []models.Product
 	query := `SELECT * FROM products`
 	err := DB.Select(&prod, query)
-
 	return prod, err
 }
 
-func GetSingleProduct(id int) (models.Product, error) {
+var GetSingleProduct = func(id int) (models.Product, error) {
 	var prod models.Product
 	query := `SELECT id, name, description, price, stock, category_id, image_url FROM products WHERE id=$1`
 	row := DB.QueryRow(query, id)
 	err := row.Scan(&prod.ID, &prod.Name, &prod.Description, &prod.Price, &prod.Stock, &prod.CategoryID, &prod.ImageURL)
-
 	return prod, err
 }
 
-func CreateProduct(input models.Product) error {
+var CreateProduct = func(input models.Product) error {
 	query := `INSERT INTO products (name, description, price, stock, category_id, image_url)
 				VALUES($1,$2,$3,$4,$5,$6)
 				RETURNING id, created_at`
@@ -32,7 +31,7 @@ func CreateProduct(input models.Product) error {
 	return err
 }
 
-func UpdateProduct(id int, input models.UpdateProductRequest, w http.ResponseWriter) error {
+var UpdateProduct = func(id int, input models.UpdateProductRequest, w http.ResponseWriter) error {
 	updates := []string{}
 	args := []interface{}{}
 	argPosition := 1
@@ -85,11 +84,10 @@ func UpdateProduct(id int, input models.UpdateProductRequest, w http.ResponseWri
 
 	//_, err = db.DB.Exec(query, prod.Name, prod.Description, prod.Price, prod.Stock, prod.CategoryID, prod.ImageURL, id)
 	_, err := DB.Exec(query, args...)
-
 	return err
 }
 
-func joinStrings(slice []string, sep string) string {
+var joinStrings = func(slice []string, sep string) string {
 	result := ""
 	for i, s := range slice {
 		if i > 0 {
@@ -100,22 +98,17 @@ func joinStrings(slice []string, sep string) string {
 	return result
 }
 
-func DeleteProduct(id int, w http.ResponseWriter) error {
+var DeleteProduct = func(id int, w http.ResponseWriter) error {
 	var prod models.Product
-
 	query := `SELECT id, name, description, price, stock, category_id, image_url FROM products WHERE id=$1`
 	productRow := DB.QueryRow(`SELECT id, name, description, price, stock, category_id, image_url FROM products WHERE id=$1`, id)
 	err := productRow.Scan(&prod.ID, &prod.Name, &prod.Description, &prod.Price, &prod.Stock, &prod.CategoryID, &prod.ImageURL)
-
-	// check if it exists
 	if err != nil {
 		_ = json.NewEncoder(w).Encode("the product doesn't exist")
 		return fmt.Errorf("the product doesn't exist")
 	}
-
 	query = `DELETE FROM products 
 				WHERE id=$1`
-
 	_, err = DB.Exec(query, id)
 	return err
 }
