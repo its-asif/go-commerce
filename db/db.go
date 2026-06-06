@@ -19,7 +19,7 @@ func ConnectDB() {
 	var err error
 	DB, err = sqlx.Connect("postgres", config.GetEnv("DB_URL"))
 	if err != nil {
-		log.Fatal("Error connecting DB")
+		log.Fatal("Error connecting DB: ", err)
 	}
 	fmt.Println("DB connected successfully")
 
