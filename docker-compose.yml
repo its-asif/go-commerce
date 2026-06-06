@@ -6,6 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: dev
     environment:
       DB_URL: "host=go_db user=postgres password=postgres dbname=postgres sslmode=disable"
       REDIS_URL: "redis://go_redis:6379"
